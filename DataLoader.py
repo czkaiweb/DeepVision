@@ -4,6 +4,7 @@ import torch
 from torch.utils.data.dataset import Dataset
 from matplotlib import image
 from torch import Tensor
+from torchvision import transforms
 
 
 ## Creating a sub class of torch.util.data.Dataset for notMNIST
@@ -48,7 +49,7 @@ class notMNIST(Dataset):
 import pickle
 
 class CIFAR(Dataset):
-    def __init__(self,path): 
+    def __init__(self,path,transform = None): 
         self.dataPath = path
         if isinstance(self.dataPath,list):
             batches = list(map(self.unpickle,self.dataPath))
@@ -60,6 +61,7 @@ class CIFAR(Dataset):
             self.label = np.array(batch["labels"]).astype('int32')
         else:
             print("Invalid path")
+        self.transform = transform
         
         
     def unpickle(self,file):
@@ -76,9 +78,13 @@ class CIFAR(Dataset):
     
     def __getitem__(self,index):
         img = self.data[index]
+        if self.transform is not None:
+            img = (img*255).astype("uint8")
+            img = self.transform(img)
+        img_tensor = Tensor(img).view(3, 32, 32).float()
         # 8 bit images. Scale between [0,1]. This helps speed up our training
         # Input for Conv2D should be Channels x Height x Width
-        img_tensor = Tensor(img).view(3, 32, 32).float()
+        #img_tensor = Tensor(img).view(3, 32, 32).float()
         label = self.label[index]
         return (img_tensor, label)
 

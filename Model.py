@@ -34,6 +34,7 @@ class CIFAR_NN(nn.Module):
 class CIFAR_CNN(nn.Module):
 	def __init__(self, useBatchNorm = False):
 		super(CIFAR_CNN,self).__init__()
+		self.useBatchNorm = useBatchNorm
 		self.conv1 = nn.Conv2d(in_channels=3,out_channels=10,kernel_size=3)
 		self.batchNorm1 = nn.BatchNorm2d(10)
 		self.pool1 = nn.MaxPool2d(2)
@@ -46,13 +47,13 @@ class CIFAR_CNN(nn.Module):
 
 	def forward(self,x):
 		x = self.conv1(x)
-		if useBatchNorm:
+		if self.useBatchNorm:
 			x = self.batchNorm1(x)
 		x = F.relu(x)
 		x = self.pool1(x)
 		x = self.flat1(x)
 		x = self.dens1(x)
-		if useBatchNorm:
+		if self.useBatchNorm:
 			x = self.batchNorm2(x)
 		x = F.relu(x)
 		x = self.drop(x)
